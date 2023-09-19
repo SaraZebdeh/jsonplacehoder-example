@@ -48,18 +48,21 @@ const createPost = (postId, title, message) => {
  * Fetch post and comments from API and render them
  * @param {number} postsId 
  */
-const renderPost = async (postsId) => {
+const renderPost = (postsId) => {
     // fetch posts by id
-    const post = await fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json())
-    // render post
-    const postHTML = createPost(postsId, post.title, post.body)
-    document.getElementById('post').innerHTML = postHTML
+    fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json()).then(post => {
+        // render post
+        const postHTML = createPost(postsId, post.title, post.body)
+        document.getElementById('post').innerHTML = postHTML
+    }).then(() => {
+        // fetch comments by post id
+        return fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
+    }).then(comments => {
+        const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
+        document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
+    })
 
-    // fetch comments by post id
-    const comments = await fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
-    // render comments
-    const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
-    document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
+
 }
 
 /**
