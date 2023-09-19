@@ -48,18 +48,39 @@ const createPost = (postId, title, message) => {
  * Fetch post and comments from API and render them
  * @param {number} postsId 
  */
-const renderPost = async (postsId) => {
+const renderPost = (postsId) => {
     // fetch posts by id
-    const post = await fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json())
-    // render post
-    const postHTML = createPost(postsId, post.title, post.body)
-    document.getElementById('post').innerHTML = postHTML
+    const postReq = new XMLHttpRequest();
+    postReq.open("GET", `https://jsonplaceholder.typicode.com/posts/${postsId}`);
+    postReq.addEventListener("load", function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const post = JSON.parse(this.responseText);
+            // render post
+            const postHTML = createPost(postsId, post.title, post.body)
+            document.getElementById('post').innerHTML = postHTML
 
-    // fetch comments by post id
-    const comments = await fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
-    // render comments
-    const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
-    document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
+
+            const commentReq = new XMLHttpRequest();
+            commentReq.open("GET", `https://jsonplaceholder.typicode.com/posts/${postsId}/comments`);
+            commentReq.addEventListener("load", function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    const comments = JSON.parse(this.responseText);
+
+                    // render comments
+                    const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
+                    document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
+                }
+            })
+
+
+            commentReq.send();
+        }
+    });
+
+    // send request
+    postReq.send();
+
+
 }
 
 /**
