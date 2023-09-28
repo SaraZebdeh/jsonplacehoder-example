@@ -44,46 +44,75 @@ const createPost = (postId, title, message) => {
     `
 }
 
-/**
- * Fetch post and comments from API and render them
- * @param {number} postsId 
- */
-const renderPost = (postsId) => {
-    // fetch posts by id
-    fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json()).then(post => {
-        // render post
-        const postHTML = createPost(postsId, post.title, post.body)
-        document.getElementById('post').innerHTML = postHTML
-    }).then(() => {
-        // fetch comments by post id
-        return fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
-    }).then(comments => {
-        const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
-        document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
-    })
 
 
-}
-
-/**
- * Remove post from DOM
- */
-const cleanPost = () => {
-    document.getElementById('post').innerHTML = ''
-}
 
 
-window.onload = () => {
-    const form = document.getElementById('form')
-    form.addEventListener('submit', (e) => {
-        e.preventDefault()
-        // get entered post id
-        const postsId = document.getElementById('postsId').value
 
-        // make sure to remove previous post
-        cleanPost()
 
-        // render post and comments
-        renderPost(postsId)
-    })
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// /**
+//  * Fetch post and comments from API and render them
+//  * @param {number} postsId
+//  */
+// const renderPost = (postsId) => {
+//     // fetch posts by id
+//     fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json()).then(post => {
+//         // render post
+//         const postHTML = createPost(postsId, post.title, post.body)
+//         document.getElementById('post').innerHTML = postHTML
+//     }).then(() => {
+//         // fetch comments by post id
+//         return fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
+//     }).then(comments => {
+//         const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
+//         document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
+//     })
+
+
+// }
+
+// /**
+//  * Remove post from DOM
+//  */
+// const cleanPost = () => {
+//     document.getElementById('post').innerHTML = ''
+// }
+
+
+// window.onload = () => {
+//     const form = document.getElementById('form')
+//     form.addEventListener('submit', (e) => {
+//         e.preventDefault()
+//         // get entered post id
+//         const postsId = document.getElementById('postsId').value
+
+//         // make sure to remove previous post
+//         cleanPost()
+
+//         // render post and comments
+//         renderPost(postsId)
+//     })
+// }
