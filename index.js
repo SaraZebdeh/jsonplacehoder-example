@@ -1,3 +1,10 @@
+const avatars = [
+    'https://avatar.iran.liara.run/public/boy?username=Ash',
+    'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=mail@ashallendesign.co.uk',
+    'https://robohash.org/mail@ashallendesign.co.uk',
+    'https://dummyimage.com/300.png/09f/fff&text=Ash+Allen',
+]
+
 /**
  * 
  * @param {string} username name of the user who created the comment
@@ -8,7 +15,7 @@ const createComment = (commentId, username, message) => {
                         <div class="flex">
                             <div class="flex-shrink-0 mr-3">
                                 <img class="mt-3 rounded-full w-6 h-6 sm:w-8 sm:h-8"
-                                    src="https://source.unsplash.com/random/50x50/?man,car,anime&sig=${commentId}"
+                                    src="${avatars[commentId % avatars.length]}"
                                     alt="">
                             </div>
                             <div class="flex-1 bg-gray-100 rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
@@ -50,17 +57,20 @@ const createPost = (postId, title, message) => {
  */
 const renderPost = (postsId) => {
     // fetch posts by id
-    fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json()).then(post => {
-        // render post
-        const postHTML = createPost(postsId, post.title, post.body)
-        document.getElementById('post').innerHTML = postHTML
-    }).then(() => {
-        // fetch comments by post id
-        return fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
-    }).then(comments => {
-        const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
-        document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
-    })
+    fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}`).then(res => res.json())
+        .then(post => {
+            // render post
+            const postHTML = createPost(postsId, post.title, post.body)
+            document.getElementById('post').innerHTML = postHTML
+        })
+        .then(() => {
+            // fetch comments by post id
+            return fetch(`https://jsonplaceholder.typicode.com/posts/${postsId}/comments`).then(res => res.json())
+        })
+        .then(comments => {
+            const commentsHTML = comments.map(comment => createComment(comment.id, comment.name, comment.body)).join('')
+            document.getElementById(`comments-${postsId}`).innerHTML = commentsHTML
+        })
 
 
 }
