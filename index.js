@@ -57,21 +57,27 @@ const cleanUp = () => {
  * @param {*} comments 
  */
 const renderPost = (post, comments) => {
+    const postElement = createPost(post.id, post.title, post.body)
+    document.getElementById('postContainer').innerHTML = postElement
 }
 
 /**
  * Fetch post and comments from API 
- * Post API: https://jsonplaceholder.typicode.com/posts/${postsId}
+ * Post API: https://jsonplaceholder.typicode.com/posts/${postId}
  * Comments API: https://jsonplaceholder.typicode.com/posts/${postsId}/comments
- * @param {*} postId 
- * @returns {Promise<{post: any, comments: any[]}>}
+ * @param {number} postId 
+ * @returns {Promise<{post: {id: number, title: string, body: string}}>}
  */
 const fetchPostAndComments = (postId) => {
-
+    return fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
+        .then(res => res.json())
+        .then(post => ({ post }))
 }
 
 // Add submit event listener to the form
 // get the id of the post from the input field
 // then fetch post and comments and render them
 window.onload = () => {
+    fetchPostAndComments(1)
+        .then(res => renderPost(res.post))
 }
