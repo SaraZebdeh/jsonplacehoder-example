@@ -1,10 +1,10 @@
 /**
- * 
- * @param {string} username name of the user who created the comment
- * @param {string} message comment message 
+ *
+ * @param {string} name name of the user who created the comment
+ * @param {string} body comment message
  */
 const createComment = (commentId, username, message) => {
-    return ` <div class="space-y-4">
+  return ` <div class="space-y-4">
                         <div class="flex">
                             <div class="flex-shrink-0 mr-3">
                                 <img class="mt-3 rounded-full w-6 h-6 sm:w-8 sm:h-8"
@@ -18,17 +18,17 @@ const createComment = (commentId, username, message) => {
                                 </p>
                             </div>
                         </div>
-                    </div>`
-}
+                    </div>`;
+};
 
 /**
- * 
- * @param {number} postId 
+ *
+ * @param {number} postId
  * @param {string} title post title
  * @param {string} message post message
  */
 const createPost = (postId, title, message) => {
-    return `
+  return `
          <div class="flex">
                 <div class="flex-1 border rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
                     <strong>${title}</strong> <span class="text-xs text-gray-400">3:34 PM</span>
@@ -41,43 +41,82 @@ const createPost = (postId, title, message) => {
 
                 </div>
             </div>
-    `
-}
-
-
-/**
- * Remove post and comments from DOM
- */
-const cleanUp = () => {
-}
+    `;
+};
 
 /**
  * Reive post and comments and render them
- * @param {*} post 
- * @param {*} comments 
+ * @param {*} post
+ * @param {*} comments
  */
-const renderPost = (post, comments) => {
-    const postElement = createPost(post.id, post.title, post.body)
-    document.getElementById('postContainer').innerHTML = postElement
-}
 
 /**
- * Fetch post and comments from API 
+ * Fetch post and comments from API
  * Post API: https://jsonplaceholder.typicode.com/posts/${postId}
  * Comments API: https://jsonplaceholder.typicode.com/posts/${postsId}/comments
- * @param {number} postId 
+ * @param {number} postId
  * @returns {Promise<{post: {id: number, title: string, body: string}}>}
+ * @returns {Promise<{comments: [{id: postId, name: string, body: string}}]>}
  */
-const fetchPostAndComments = (postId) => {
-    return fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
-        .then(res => res.json())
-        .then(post => ({ post }))
-}
 
-// Add submit event listener to the form
-// get the id of the post from the input field
-// then fetch post and comments and render them
-window.onload = () => {
-    fetchPostAndComments(1)
-        .then(res => renderPost(res.post))
-}
+//Remove post and comments from DOM
+const cleanUp = () => {
+    document.getElementById("postContainer").innerHTML = "";
+  };
+
+//show error messge for not exist post  
+const showError = async (message) => {
+    await cleanUp();
+    const errorElement = document.createElement("div");
+    errorElement.className = "text-red-500";
+    errorElement.textContent = message;
+    document.getElementById("postContainer").appendChild(errorElement);
+  };
+
+//fetch api for post
+const fetchPost = (postId) => {
+  return fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`).then(
+    (res) => res.json()
+  );
+};
+
+//fetch api for post's comments
+const fetchComments = (postId) => {
+  return fetch(
+    `https://jsonplaceholder.typicode.com/posts/${postId}/comments`
+  ).then((res) => res.json());
+};
+
+const renderPostandComments = async (postId) => {
+  const post = await fetchPost(postId);
+  if(!post.id){
+    showError("Sorry! This post id is not exist!");
+    return;
+  }
+
+  const postElement = createPost(post.id, post.title, post.body);
+  document.getElementById("postContainer").innerHTML = postElement;
+
+  const comments = await fetchComments(postId);
+
+  const commentElements = comments.map((comment) => {
+    return createComment(comment.id, comment.name, comment.body);
+  });
+  document.getElementById(`comments-${postId}`).innerHTML = commentElements;
+};
+
+window.onload = async () => {
+  const form = document.getElementById("form");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    //get the post id which user entered in the search input
+    const postId = document.getElementById("postId").value;
+
+    //remove previous post and its comments
+    cleanUp();
+
+    //fetch and render the post and its comments
+    renderPostandComments(postId);
+  });
+};
