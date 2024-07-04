@@ -61,17 +61,17 @@ const createPost = (postId, title, message) => {
 
 //Remove post and comments from DOM
 const cleanUp = () => {
-    document.getElementById("postContainer").innerHTML = "";
-  };
+  document.getElementById("postContainer").innerHTML = "";
+};
 
-//show error messge for not exist post  
+//show error messge for not exist post
 const showError = async (message) => {
-    await cleanUp();
-    const errorElement = document.createElement("div");
-    errorElement.className = "text-red-500";
-    errorElement.textContent = message;
-    document.getElementById("postContainer").appendChild(errorElement);
-  };
+  await cleanUp();
+  const errorElement = document.createElement("div");
+  errorElement.className = "text-red-500";
+  errorElement.textContent = message;
+  document.getElementById("postContainer").appendChild(errorElement);
+};
 
 //fetch api for post
 const fetchPost = (postId) => {
@@ -89,20 +89,54 @@ const fetchComments = (postId) => {
 
 const renderPostandComments = async (postId) => {
   const post = await fetchPost(postId);
-  if(!post.id){
-    showError("Sorry! This post id is not exist!");
+  try {
+    if (!post.id) {
+      throw new Error();
+    }
+  } catch {
+    showError("Sorry! This post is not found!");
     return;
   }
 
   const postElement = createPost(post.id, post.title, post.body);
   document.getElementById("postContainer").innerHTML = postElement;
 
+  //fetch comments
   const comments = await fetchComments(postId);
 
+  //render comments
   const commentElements = comments.map((comment) => {
     return createComment(comment.id, comment.name, comment.body);
   });
   document.getElementById(`comments-${postId}`).innerHTML = commentElements;
+};
+
+const renderPostandCommentsUsingPromises = (postId) => {
+  const post = fetchPost(postId);
+  post
+    .then((post) => {
+      if (!post.id) {
+        throw new Error();
+      }
+      // render post
+      const postHTML = createPost(postId, post.title, post.body);
+      document.getElementById("postContainer").innerHTML = postHTML;
+    })
+    .then(() => {
+      // fetch comments by post id
+      return fetchComments(postId);
+    })
+    .then((comments) => {
+      //render comments
+      const commentsHTML = comments
+        .map((comment) => createComment(comment.id, comment.name, comment.body))
+        .join("");
+      document.getElementById(`comments-${postId}`).innerHTML = commentsHTML;
+    })
+    .catch(() => {
+      showError("Sorry! This post is not found!");
+      return;
+    });
 };
 
 window.onload = async () => {
@@ -118,5 +152,6 @@ window.onload = async () => {
 
     //fetch and render the post and its comments
     renderPostandComments(postId);
+    // renderPostandCommentsUsingPromises(postId);
   });
 };
